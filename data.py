@@ -52,7 +52,7 @@ class Naturalization:
         return list([idx for idx in self.df.index.levels[1] if '(' not in idx])
 
     def get_gender(self) -> list:
-        return list(self.df.columns.levels[0])
+        return [i for i in self.df.columns.levels[0] if 'unnamed' not in i]
 
 
     def get_amount_per_region(self, regions: list, gender = 'insgesamt') -> dict:
@@ -63,14 +63,13 @@ class Naturalization:
         :param age: _description_
         :return: _description_
         """
-        data = {}
+        data = pd.DataFrame(index=self.df.index.levels[0])
 
-        print(regions)
+        
 
         for region in regions:
             temp_df = self.df[gender].xs(region, level=1)
             temp_df = temp_df.groupby(level='jahr').sum()
-            data[region] = temp_df
+            data[region] = temp_df['gesamt']
 
         return data
-

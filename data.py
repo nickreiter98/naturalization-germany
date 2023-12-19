@@ -54,6 +54,11 @@ class Naturalization:
     def get_gender(self) -> list:
         return [i for i in self.df.columns.levels[0] if 'unnamed' not in i]
 
+    def get_age_classes(self) -> list:
+        return [i for i in self.df.columns.levels[1] if 'unnamed' not in i and '-' not in i]
+
+
+
 
     def get_amount_per_region(self, regions: list, gender = 'insgesamt') -> dict:
         """_summary_
@@ -65,11 +70,24 @@ class Naturalization:
         """
         data = pd.DataFrame(index=self.df.index.levels[0])
 
-        
-
         for region in regions:
             temp_df = self.df[gender].xs(region, level=1)
             temp_df = temp_df.groupby(level='jahr').sum()
             data[region] = temp_df['gesamt']
 
         return data
+
+    def get_amount_per_age_class(self, region: str, genders: list, ages: list) -> (pd.DataFrame, list):
+        data = pd.DataFrame(index=self.df.index.levels[0])
+
+        for gender in genders:
+            temp_df = self.df[gender].xs(region, level=1)
+            temp_df = temp_df[ages]
+            temp_df.columns = [(gender+'_'+i) for i in temp_df.columns]
+            data = pd.merge(data, temp_df, left_index=True, right_index=True)
+
+        data = data.groupby(level='jahr').sum()
+
+        return data, data.columns
+
+

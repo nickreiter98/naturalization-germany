@@ -4,6 +4,8 @@ from dateutil.relativedelta import relativedelta
 
 import plotly.express as px
 
+import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
 
 from data import Naturalization
 
@@ -13,23 +15,66 @@ regions = naturalization.get_regions()
 gender = naturalization.get_gender()
 age = naturalization.get_age_classes()
 
+load_figure_template('LUX')
 
-app = Dash(__name__)
+
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "24rem",
+    "padding": "2rem 1rem",
+    "background-color": "#f8f9fa",
+}
+
+
+sidebar = html.Div(
+    [
+        html.H2("Filterauswahl"),
+        html.Hr(),
+        dbc.Nav(
+            [
+                html.H3('Figure 1'),
+                dcc.Dropdown(gender, 'insgesamt', id='dropdown-gender-region'),
+                html.Br(),
+                dcc.Dropdown(regions, ['europa'], id='dropdown-regions-region', multi=True),
+                html.Br(),
+                html.Button('Update', id='button-update-region', n_clicks=0),
+                html.Br(),
+                html.Hr(),
+                html.H3('Figure 2'),
+                dcc.Dropdown(age, ['5_bis_unter_10_jahre'], id='dropdown-age-age', multi=True),
+                html.Br(),
+                dcc.Dropdown(gender, ['insgesamt'], id='dropdown-gender-age', multi=True),
+                html.Br(),
+                dcc.Dropdown(regions, 'europa', id='dropdown-regions-age'),
+                html.Br(),
+                html.Button('Update', id='button-update-age', n_clicks=0)
+
+            ],
+            vertical=True,
+            pills=True,
+        ),
+    ],
+    style=SIDEBAR_STYLE,
+)
+
+
+
+app = Dash(external_stylesheets=[dbc.themes.LUX])
 
 app.layout = html.Div([
-    html.Div(children="Einbürgerung in Deutschland nach Ländern"),
-    dcc.Graph(id='graph-region'),
-    dcc.Dropdown(gender, 'insgesamt', id='dropdown-gender-region'),
-    dcc.Dropdown(regions, ['europa'], id='dropdown-regions-region', multi=True),
-    html.Button('Update', id='button-update-region', n_clicks=0),
-
-    html.Div(children="Einbürgerung in Deutschland nach Land und Altersklassen"),
-    dcc.Graph(id='graph-age'),
-    dcc.Dropdown(age, ['5_bis_unter_10_jahre'], id='dropdown-age-age', multi=True),
-    dcc.Dropdown(gender, ['insgesamt'], id='dropdown-gender-age', multi=True),
-    dcc.Dropdown(regions, 'europa', id='dropdown-regions-age'),
-    html.Button('Update', id='button-update-age', n_clicks=0),
+    dbc.Row(
+            [dbc.Col(sidebar),
+            dbc.Col(html.Div([
+                dcc.Graph(id='graph-region'),
+                dcc.Graph(id='graph-age')
+            ]), width = 9, style = {'margin-left':'15px', 'margin-top':'7px', 'margin-right':'15px'})
+            ]
+    )
 ])
+
 
 
 @callback(
@@ -58,4 +103,6 @@ def update_figure_age(n_clicks, region, genders, ages):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+    
     

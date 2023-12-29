@@ -9,11 +9,17 @@ from dash_bootstrap_templates import load_figure_template
 
 from data import Naturalization
 
+import graphics
+
 naturalization = Naturalization()
 
 regions = naturalization.get_regions()
 gender = naturalization.get_gender()
 age = naturalization.get_age_classes()
+years = naturalization.get_years()
+
+data_population_pyramid = naturalization.get_data_population_pyramid('europa', 2020)
+population_pyramid = graphics.get_graph_population_pyramid(data_population_pyramid)
 
 load_figure_template('LUX')
 
@@ -50,8 +56,15 @@ sidebar = html.Div(
                 html.Br(),
                 dcc.Dropdown(regions, 'europa', id='dropdown-regions-age'),
                 html.Br(),
-                html.Button('Update', id='button-update-age', n_clicks=0)
-
+                html.Button('Update', id='button-update-age', n_clicks=0),
+                html.Br(),
+                html.Hr(),
+                html.H3('Figure 3'),
+                dcc.Dropdown(years, 2020, id='dropdown-year-pyramid'),
+                html.Br(),
+                dcc.Dropdown(regions, 'europa', id='dropdown-regions-pyramid'),
+                html.Br(),
+                html.Button('Update', id='button-update-pyramid', n_clicks=0),
             ],
             vertical=True,
             pills=True,
@@ -69,7 +82,8 @@ app.layout = html.Div([
             [dbc.Col(sidebar),
             dbc.Col(html.Div([
                 dcc.Graph(id='graph-region'),
-                dcc.Graph(id='graph-age')
+                dcc.Graph(id='graph-age'),
+                dcc.Graph(figure = population_pyramid, id= 'figure-population-pyramid')
             ]), width = 9, style = {'margin-left':'15px', 'margin-top':'7px', 'margin-right':'15px'})
             ]
     )
@@ -99,6 +113,17 @@ def update_figure_age(n_clicks, region, genders, ages):
     print((region, gender, ages))
     data, columns = naturalization.get_amount_per_age_class(region, genders, ages)
     fig = px.line(data, x=data.index, y=columns)
+    return fig
+
+@callback(
+    Output('figure-population-pyramid', 'figure'), 
+    Input('button-update-pyramid', 'n_clicks'),
+    [State('dropdown-regions-pyramid', 'value'),
+    State('dropdown-year-pyramid', 'value')],
+    )
+def update_figure_pyramid(n_clicks, region, year):
+    data = naturalization.get_data_population_pyramid(region, year)
+    fig = graphics.get_graph_population_pyramid(data)
     return fig
 
 if __name__ == '__main__':

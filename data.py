@@ -57,6 +57,12 @@ class Naturalization:
     def get_age_classes(self) -> list:
         return [i for i in self.df.columns.levels[1] if 'unnamed' not in i and '-' not in i]
 
+    def get_marital_status(self) -> list:
+        return [i for i in self.df.index.levels[2]]
+
+    def get_years(self) -> list:
+        return [i for i in self.df.index.levels[0]]
+
 
 
 
@@ -77,7 +83,7 @@ class Naturalization:
 
         return data
 
-    def get_amount_per_age_class(self, region: str, genders: list, ages: list) -> (pd.DataFrame, list):
+    def get_amount_per_age_class(self, region: str, genders: list, ages: list, marital_status = None) -> (pd.DataFrame, list):
         data = pd.DataFrame(index=self.df.index.levels[0])
 
         for gender in genders:
@@ -89,5 +95,24 @@ class Naturalization:
         data = data.groupby(level='jahr').sum()
 
         return data, data.columns
+
+    def get_data_population_pyramid(self, region: str, year: int):
+        df = self.df.loc[year]
+        df = df.groupby(level='herkunft').sum()
+
+        
+
+        def data_per_sex(sex: str):
+            col_mapping = {
+            '5_bis_unter_10_jahre': '05_bis_unter_10_jahre',
+            'unter_5_jahre' : '005_jahre',
+            }
+
+            df_sex = df[sex].drop('gesamt', axis=1)
+            df_sex = df_sex.rename(columns=col_mapping)
+            return df_sex.reindex(columns=sorted(df_sex.columns))
+
+
+        return [data_per_sex('männlich').loc[region], data_per_sex('weiblich').loc[region]]
 
 

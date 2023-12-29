@@ -1,6 +1,9 @@
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
+from dash import dcc
+import plotly.express as px
+
 
 def get_graph_population_pyramid(data):
 
@@ -32,3 +35,25 @@ def get_graph_population_pyramid(data):
                 )]
 
     return go.Figure(data=data, layout=layout)
+
+
+def get_graph_heatmap(data):
+
+
+    fig = px.imshow(data,
+            labels=dict(x="Familienstand", y="Jahr", color="Einbürgerungen"),
+            x=data.columns,
+            y=data.index
+        )
+    fig.update_xaxes(side="top")
+    return fig
+    
+
+
+
+
+
+
+
+
+

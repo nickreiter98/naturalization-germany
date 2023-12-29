@@ -116,3 +116,7 @@ class Naturalization:
         return [data_per_sex('männlich').loc[region], data_per_sex('weiblich').loc[region]]
 
 
+    def get_data_heatmap(self, country: str, sex):
+
+        df = self.df.xs('afrika', level=1)[sex, 'gesamt']
+        return df.unstack(level=1)

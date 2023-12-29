@@ -21,6 +21,12 @@ years = naturalization.get_years()
 data_population_pyramid = naturalization.get_data_population_pyramid('europa', 2020)
 population_pyramid = graphics.get_graph_population_pyramid(data_population_pyramid)
 
+heatmap = []
+for i in ['männlich', 'weiblich']:
+    data_heatmap = naturalization.get_data_heatmap('europa', i)
+    graph_heatmap = graphics.get_graph_heatmap(data_heatmap)
+    heatmap.append(dcc.Graph(figure=graph_heatmap, id = 'heatmap-'+i))
+
 load_figure_template('LUX')
 
 
@@ -32,6 +38,7 @@ SIDEBAR_STYLE = {
     "width": "24rem",
     "padding": "2rem 1rem",
     "background-color": "#f8f9fa",
+    "overflow": "scroll"
 }
 
 
@@ -65,6 +72,13 @@ sidebar = html.Div(
                 dcc.Dropdown(regions, 'europa', id='dropdown-regions-pyramid'),
                 html.Br(),
                 html.Button('Update', id='button-update-pyramid', n_clicks=0),
+                html.Br(),
+                html.Hr(),
+                html.H3('Figure 4'),
+                html.Br(),
+                dcc.Dropdown(regions, 'europa', id='dropdown-regions-heatmap'),
+
+
             ],
             vertical=True,
             pills=True,
@@ -72,7 +86,6 @@ sidebar = html.Div(
     ],
     style=SIDEBAR_STYLE,
 )
-
 
 
 app = Dash(external_stylesheets=[dbc.themes.LUX])
@@ -83,7 +96,8 @@ app.layout = html.Div([
             dbc.Col(html.Div([
                 dcc.Graph(id='graph-region'),
                 dcc.Graph(id='graph-age'),
-                dcc.Graph(figure = population_pyramid, id= 'figure-population-pyramid')
+                dcc.Graph(figure = population_pyramid, id= 'figure-population-pyramid'),
+                html.Div(id='heatmap-marital-status', children=heatmap)
             ]), width = 9, style = {'margin-left':'15px', 'margin-top':'7px', 'margin-right':'15px'})
             ]
     )

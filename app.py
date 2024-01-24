@@ -10,6 +10,7 @@ from dash_bootstrap_templates import load_figure_template
 from data import Naturalization
 
 import graphics
+import os
 
 naturalization = Naturalization()
 
@@ -141,7 +142,8 @@ def update_figure_pyramid(n_clicks, region, year):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True,host='0.0.0.0',port=port)
 
     
     

@@ -15,7 +15,8 @@ def get_graph_population_pyramid(data):
     layout = go.Layout(yaxis=go.layout.YAxis(title='Age'),
                     xaxis=go.layout.XAxis(title='Number'),
                     barmode='overlay',
-                    bargap=0.1)
+                    bargap=0.1,
+                    title='Fig 3 - Population Pyramid according to age class and region',)
 
     data = [go.Bar(y=y,
                 x=men_bins,
@@ -37,13 +38,13 @@ def get_graph_population_pyramid(data):
     return go.Figure(data=data, layout=layout)
 
 
-def get_graph_heatmap(data):
-
+def get_graph_heatmap(data, sex: str):
 
     fig = px.imshow(data,
             labels=dict(x="Familienstand", y="Jahr", color="Einbürgerungen"),
             x=data.columns,
-            y=data.index
+            y=data.index,
+            title = f'Fig 4 - Heatmap of naturalization rate according to marital status and year - {sex}',
         )
     fig.update_xaxes(side="top")
     return fig
